@@ -1,0 +1,61 @@
+{
+    "alloc": {
+        "0x38814355bb4868f03c7a67c5f0dcc18c641a5dfa":{
+            "balance": 1000000000000000000
+        },
+        "0x4bc3d48c18de89ca9910c21841276d9726adff84":{
+            "balance": 1000000000000000000
+        },
+        "0x5c7c4bcebbadd7d4714a02d4e906c633c301d144":{
+            "balance": 1000000000000000000
+        },
+        "0x1332dff3d6115b916337c6d19049108c76003cf0":{
+            "balance": 1000000000000000000
+        },
+        "0x6a09b31e557617b88e8203691894af32826e9a80":{
+            "balance": 1000000000000000000
+        },
+        "0xf0090e44fc594efd52b3606657523e45c6f348fe":{
+            "balance": 1000000000000000000
+        },
+        "0xf978490fd560c84b362900ce85fc1114bfeccc41":{
+            "balance": 1000000000000000000
+        },
+        "0x9dc9740d892fa6922dca9dba33537ebab17aa277":{
+            "balance": 1000000000000000000
+        },
+        "0x17799b644661cb6012e6ca6962ad0d7af127c35a":{
+            "balance": 1000000000000000000
+        },
+        "0x15a8a4adabb6c340fa3c9084c0cafdb9fbeb88f7":{
+            "balance": 1000000000000000000
+        },
+        "0x42db973b633ec31b89583561ee77bca61699e674":{
+            "balance": 1000000000000000000
+        },
+        "0x2d01e632ff22eb21bc1dd811930a2d262735f3a1":{
+            "balance": 1000000000000000000
+        },
+        "0x80384bd362800bafa3c2bd0eb8517ed9e2d04012":{
+            "balance": 1000000000000000000
+        },
+        "0x8f3c0d9a627806de8a05f9614f985ff55b5646ff":{
+            "balance": 1000000000000000000
+        }  
+    },
+    "config":{
+        "eip150Block": 0,
+        "eip155Block": 0,
+        "eip158Block": 0,
+        "byzantiumBlock": 0,
+        "petersburgBlock": 0,
+        "istanbulBlock": 0,
+        "constantinopleBlock": 0,
+        "homesteadBlock": 0,
+        "chainId": 13 
+    },
+    "nonce": "0x100",
+    "gasValue": "0x200",
+    "gasLimit": "0x300000000",
+    "difficulty": "0x0"
+}
