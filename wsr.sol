@@ -2,6 +2,29 @@ pragma solidity ^0.8.7;
 
 contract registration{
 
+    constructor(address _buyer, address _shop1, address _seller, address _admin) {
+        acc[_buyer] = Account("buyer", "123", _buyer.balance, role.Buyer, 0, _buyer);
+        add["buyer"] = _buyer;
+        pass[_buyer] = "123";
+
+        acc[_shop1] = Account("shop1", "123", _shop1.balance, role.Shop, 0, _shop1);
+        add["shop1"] = _shop1;
+        pass[_shop1] = "123";
+        address[] memory empty;
+        shops[_shop1] = Shops(1, "SPB", _shop1.balance, empty);
+
+        acc[_seller] = Account("seller", "123", _seller.balance, role.Seller, 0, _seller);
+        add["seller"] = _seller;
+        pass[_seller] = "123";
+        sellers[_seller] = Sellers(shops[_shop1].Sity, _shop1);
+        shops[_shop1].sellersShop.push(_seller);
+        
+        acc[_admin] = Account("admin", "123", _admin.balance, role.Admin, 0, _admin);
+        add["admin"] = _admin;
+        pass[_admin] = "123";
+        Admins.push(_admin);
+    }
+
     uint shopId = 0;
     uint commId = 0;
     struct Account{
@@ -12,34 +35,24 @@ contract registration{
         uint tempRole;
         address wallet;
     }
-    mapping (address => Account) public acc;
-    mapping (string => address) public add;
-    mapping (address => string) public pass;
-
-    enum role{Guest, Buyer, Seller, Provider, Bank, Admin, Shop}
-
+    
     struct Shops{
         uint Id;
         string Sity;
         uint balance;
         address[] sellersShop;
     }
-    mapping (address => Shops) public shops;
 
     struct Sellers{
         string sity;
         address Shop;
     }
-    mapping (address => Sellers) public sellers;
- 
-
+    
     struct RequestRise{
         address shop;
         address seller;
     }
-    RequestRise[] public reqRiseList;
-    address[] public DowngradeList;
-
+    
     struct Comment{
         uint id;
         address sender;
@@ -49,25 +62,22 @@ contract registration{
         uint dislike;
         string[] commAnswer;
     }
+
+    mapping (address => Account) public acc;
+    mapping (string => address) public add;
+    mapping (address => string) public pass;
     mapping (uint => Comment[]) public commShop;
-
+    mapping (address => Shops) public shops;
+    mapping (address => Sellers) public sellers;
     address[] public Admins;
-    
-    function shopSellers(address _shop) public view returns (address[] memory){
-        return shops[_shop].sellersShop;    
-    }
-
-    function commAnswer(uint _shopId, uint _commId, uint _commAnswerId) public view returns (string memory){
-        return commShop[_shopId][_commId].commAnswer[_commAnswerId];    
-    }
-
-    function commsAnswers(uint _shopId, uint _commId) public view returns (string[] memory){
-        return commShop[_shopId][_commId].commAnswer;    
-    }
-    //string storage ref[] storage ref
-
     address payable[] public reqLoan;
+    RequestRise[] public reqRiseList;
+    address[] public DowngradeList;
+
     //role checking
+
+    enum role{Guest, Buyer, Seller, Provider, Bank, Admin, Shop}
+
     modifier onlyBuyer{
         require(acc[msg.sender].role == role.Buyer || acc[msg.sender].tempRole == 1, "You`re not buyer");
         _;
@@ -97,28 +107,7 @@ contract registration{
         require(acc[msg.sender].role == role.Shop, "You`re not shop");
         _;
     }
-    constructor(address _buyer, address _shop1, address _seller, address _admin) {
-        acc[_buyer] = Account("buyer", "123", _buyer.balance, role.Buyer, 0, _buyer);
-        add["buyer"] = _buyer;
-        pass[_buyer] = "123";
-
-        acc[_shop1] = Account("shop1", "123", _shop1.balance, role.Shop, 0, _shop1);
-        add["shop1"] = _shop1;
-        pass[_shop1] = "123";
-        address[] memory empty;
-        shops[_shop1] = Shops(1, "SPB", _shop1.balance, empty);
-
-        acc[_seller] = Account("seller", "123", _seller.balance, role.Seller, 0, _seller);
-        add["seller"] = _seller;
-        pass[_seller] = "123";
-        sellers[_seller] = Sellers(shops[_shop1].Sity, _shop1);
-        shops[_shop1].sellersShop.push(_seller);
-        
-        acc[_admin] = Account("admin", "123", _admin.balance, role.Admin, 0, _admin);
-        add["admin"] = _admin;
-        pass[_admin] = "123";
-        Admins.push(_admin);
-    }
+    
 
 
     //registration and authorisation
@@ -144,19 +133,20 @@ contract registration{
         reqRiseList.push(RequestRise(_shop, msg.sender));
     }
     
-    function commenting(uint _shopId,uint _grade, string memory _comm) public {
+    function commenting(uint _shopId,uint _grade, string memory _comm) public onlyBuyer{
         commId++;
         string[] memory empty;
         commShop[_shopId].push(Comment(commId, msg.sender, _grade, _comm, 0, 0, empty));
     }
 
-    function likeComm(uint _idShop, uint _idComm) public{
+    function likeComm(uint _idShop, uint _idComm) public onlyBuyer{
         commShop[_idShop][_idComm].like++;
     }
 
-    function dislike(uint _idShop, uint _idComm) public {
+    function dislike(uint _idShop, uint _idComm) public onlyBuyer{
         commShop[_idShop][_idComm].dislike++;
     }
+
     //Bank
     function loan(bool _answer, uint _id) public payable onlyBank{
         if (_answer == true){
@@ -167,12 +157,15 @@ contract registration{
             delete reqLoan[_id];
         }
     }
+
     //Shops
     
     function requestLoan() public onlyShop{
         reqLoan.push(payable(msg.sender));
     }
+
     //Seller
+
     function requestDowngrade() public onlySeller{
         DowngradeList.push(msg.sender);
     }
@@ -188,7 +181,9 @@ contract registration{
     function replyComment(uint _idComm, string memory _reply) public onlySeller{
         commShop[shops[sellers[msg.sender].Shop].Id][_idComm].commAnswer.push(_reply);   
     } 
+
     //Admin
+
     function addSellers (bool _answer, uint _id) public onlyAdmin{
         if (_answer == true){
         acc[reqRiseList[_id].seller].role = role.Seller;
@@ -229,9 +224,31 @@ contract registration{
         address[] memory empty;
         shops[_newShop] = Shops(shopId, _sity, _newShop.balance, empty);
     }
-    //function addSellers ();
 
+    function deleteShop (address _shop) public onlyAdmin{
+        for(uint i = 0; i < shops[_shop].sellersShop.length; i++){
+            acc[shops[_shop].sellersShop[i]].role = role.Buyer;
+            delete sellers[shops[_shop].sellersShop[i]];
+        }
+        delete commShop[shops[_shop].Id];
+        delete shops[_shop];
+        acc[_shop].role = role.Buyer;
+        
+    }
 
+    //readout
+    function shopSellers(address _shop) public view returns (address[] memory){
+        return shops[_shop].sellersShop;    
+    }
+
+    function commAnswer(uint _shopId, uint _commId, uint _commAnswerId) public view returns (string memory){
+        return commShop[_shopId][_commId].commAnswer[_commAnswerId];    
+    }
+
+    function commsAnswers(uint _shopId, uint _commId) public view returns (string[] memory){
+        return commShop[_shopId][_commId].commAnswer;    
+    }
+    
     //tools
     function addBuyer () public{
         acc[msg.sender].role = role.Buyer;
@@ -251,10 +268,5 @@ contract registration{
     function addShop () public{
         acc[msg.sender].role = role.Shop;
     } 
-
-   // function leaveAComment(string memory _comm, uint _grade, address _shop){} 
-
-
-
-    
+     
 }
