@@ -7,6 +7,8 @@ contract NewToken is ERC20("cmonToken", "CMN") {
     address investor1 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
     address investor2 = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db;
     address investor3 = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB;
+    address developer1 = 0x617F2E2fD72FD9D5503197092aC168c91465E7f2;
+    address VIPPerson = 0x17F6AD8Ef982297579C203069C1DbfFE4348c372;
     address[] public whiteList;
     address[] requestWhiteList;
     uint stage1 = block.timestamp;
@@ -14,6 +16,7 @@ contract NewToken is ERC20("cmonToken", "CMN") {
     uint stage3 = stage2 + 2 minutes;
     uint stage4 = stage3 + 5 minutes;
     uint volClosedSale = 200000*(10**decimals());
+    uint dec = 10**decimals();
 
     constructor() public {
         uint256 decim = 10**decimals();
@@ -22,6 +25,27 @@ contract NewToken is ERC20("cmonToken", "CMN") {
         _mint(investor2, 100000 * decim);
         _mint(investor3, 50000 * decim);
 
+        acc[investor1] = Account("investor1", balanceOf(investor1), investor1, false, false);
+        add["investor1"] = investor1;
+        pass[investor1] = "123";
+
+        acc[investor2] = Account("investor2", balanceOf(investor2), investor2, false, false);
+        add["investor2"] = investor2;
+        pass[investor2] = "123";
+
+        acc[investor3] = Account("investor3", balanceOf(investor3), investor3, false, false);
+        add["investor3"] = investor3;
+        pass[investor3] = "123";
+
+        acc[developer1] = Account("dev1", balanceOf(developer1), developer1, false, true);
+        add["dev1"] = developer1;
+        pass[developer1] = "123";
+        devTake[developer1] = 40000;
+
+        acc[VIPPerson] = Account("vip", balanceOf(VIPPerson), VIPPerson, true, false);
+        add["vip"] = VIPPerson;
+        pass[VIPPerson] = "123";
+        whiteList.push(VIPPerson);
     }
 
     struct Account{
@@ -29,22 +53,24 @@ contract NewToken is ERC20("cmonToken", "CMN") {
          uint balance;
          address wallet;
          bool presWhiteList;
+         bool deveveloper;
     }
 
     mapping (address => Account) public  acc;
     mapping (string => address) public add;
     mapping (address => string) public pass;
+    mapping (address => uint) public devTake; 
 
     function registration(string memory _login, string memory _password) public{
          require(acc[msg.sender].wallet == address(0), "Account already registered");
-         acc[msg.sender] = Account(_login, balanceOf(msg.sender), msg.sender, false);
+         acc[msg.sender] = Account(_login, balanceOf(msg.sender), msg.sender, false, false);
          add[_login] = msg.sender;
          pass[msg.sender] = _password;
     }
      
     function authorisation(string memory _login, string memory _password) public view returns (Account memory){
          require(keccak256(abi.encode(acc[add[_login]].login)) == keccak256(abi.encode(_login)), "Invalid login");
-         require(keccak256(abi.encode(pass[add[_login]])) == keccak256(abi.encode(_password)));
+         require(keccak256(abi.encode(pass[add[_login]])) == keccak256(abi.encode(_password)), "Invalid password");
          return acc[add[_login]];
     }
 
@@ -71,7 +97,44 @@ contract NewToken is ERC20("cmonToken", "CMN") {
     }
 
     function openSale () public payable openOpenSale{
-        uint priceToken = 0;
+        uint priceToken = 2;
+        payable(admin).transfer(msg.value);
+        transferFrom(admin, msg.sender, msg.value/priceToken*(10**decimals()));
+    }
+
+    // function takeDevToken() public onlyDev{
+    //     require(block.timestamp >= stage3 + 3 minutes * (1 + ) )   
+    // }
+    function takeDevToken() public onlyDev{
+        if(block.timestamp < stage3 + 3 minutes && block.timestamp >= stage3 && devTake[msg.sender] >= 30000){
+            transferFrom(admin, msg.sender, (devTake[msg.sender] - 30000) * dec);
+            devTake[msg.sender] -=(devTake[msg.sender] - 30000);
+        }
+        else if(block.timestamp >= stage3 + 3 minutes && block.timestamp < stage3 + 6 minutes && devTake[msg.sender] >= 20000){
+            transferFrom(admin, msg.sender, (devTake[msg.sender] - 20000) * dec);
+            devTake[msg.sender] -=(devTake[msg.sender] - 20000);
+        }
+        else if(block.timestamp >= stage3 + 6 minutes && block.timestamp < stage3 + 9 minutes && devTake[msg.sender] >= 10000){
+            transferFrom(admin, msg.sender, (devTake[msg.sender] - 10000) * dec);
+            devTake[msg.sender] -=(devTake[msg.sender] - 10000);
+        }
+        else if(block.timestamp >= stage3 + 9 minutes && devTake[msg.sender] >= 0 ){
+            transferFrom(admin, msg.sender, devTake[msg.sender] * dec);
+            devTake[msg.sender] -=(devTake[msg.sender]);
+        }
+        else {
+           revert("Distribution to developers has not yet begun"); 
+        }
+    } 
+
+    function addTime() public{
+        stage3 -= 1 minutes;
+    }
+        
+
+
+    function decimals() public pure override returns (uint8) {
+        return 18;
     }
     
     modifier onlyAdmin{
@@ -93,6 +156,11 @@ contract NewToken is ERC20("cmonToken", "CMN") {
 
     modifier openOpenSale{ 
         require(block.timestamp >= stage4, "The open purchase stage has not started yet");
+        _;
+    }
+
+    modifier onlyDev{
+        require(acc[msg.sender].deveveloper == true, "You'r not developer");
         _;
     }
 }
