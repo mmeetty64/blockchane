@@ -13,6 +13,7 @@ contract NewToken is ERC20("cmonToken", "CMN") {
     uint stage2 = stage1 + 3 minutes;
     uint stage3 = stage2 + 2 minutes;
     uint stage4 = stage3 + 5 minutes;
+    uint volClosedSale = 200000*(10**decimals());
 
     constructor() public {
         uint256 decim = 10**decimals();
@@ -61,6 +62,17 @@ contract NewToken is ERC20("cmonToken", "CMN") {
         }
     }
 
+    function closedSale () public payable VIP openClosedSale{
+        uint priceToken = 1 ether;
+        require(volClosedSale >= msg.value/priceToken * (10**decimals()), "Tokens for the closed sale are over!");
+           payable(admin).transfer(msg.value);
+           transferFrom(admin, msg.sender, msg.value/priceToken*(10**decimals()));
+           volClosedSale -= (msg.value/priceToken* (10**decimals()));
+    }
+
+    function openSale () public payable openOpenSale{
+        uint priceToken = 0;
+    }
     
     modifier onlyAdmin{
         require(msg.sender == admin,  "You'r not a admin");
@@ -68,6 +80,19 @@ contract NewToken is ERC20("cmonToken", "CMN") {
     }
     modifier onlyUser{
         require(acc[msg.sender].wallet != address(0), "You don't have an account");
+        _;
+    }
+    modifier VIP{
+        require(acc[msg.sender].presWhiteList == true, "You are not on the whitelist");
+        _;
+    }
+    modifier openClosedSale{
+        require(block.timestamp < stage4, "Closed buy stage ended");
+        _;
+    }
+
+    modifier openOpenSale{ 
+        require(block.timestamp >= stage4, "The open purchase stage has not started yet");
         _;
     }
 }
