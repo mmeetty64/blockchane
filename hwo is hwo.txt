@@ -1,0 +1,44 @@
+  
+
+        address admin = "0x54446dd2c1cb31574ceafda79157550dc2504afd": {
+            "balance": "10000000000000000000000"
+        },
+        address buyer = "0xa18a4720c48bd46d61c70468ed3d863c5eedf583": {
+            "balance": "100000000000000000000"
+        },
+        address seller = "0x116443c87c4a962c73b327883899c0f917f582f8": {
+            "balance": "100000000000000000000"
+        },
+        address bank = "0x27898a19f895c65f6ae40ed29e4b043f50299fa7": {
+            "balance": "10000000000000000000000"
+        },
+        address provider = "0x2e0189ea081ad5fd2685a65689ec7a1df8b851ed": {
+            "balance": "100000000000000000000"
+        },
+        address shop1 = "0x2cab63b3b4d2e6a8a80f497cc93fdc2e6eb070ba": {
+            "balance": "1000000000000000000000"
+        },
+        address shop2 = "0x3f7e3fc2b911244d47c871e4343448283eabfc51;": {
+            "balance": "900000000000000000000"
+        },
+        address shop3 = "0xd5e8631fa3a48c5ca10da58f6662ff1d4ec5532e": {
+            "balance": "1050000000000000000000"
+        },
+        address shop4 = "0x754b061be2aac183e2c16a7524261f93f76af3fe": {
+            "balance": "700000000000000000000"
+        },
+        address shop5 = "0x7b018f1f254c72c04eed80948820ca2ecef2a992": {
+            "balance": "2000000000000000000000"
+        },
+        address shop6 = "0x4a1a5f65360a67190620cad8b9751b38228cf9ee": {
+            "balance": "2300000000000000000000"
+        },
+        address shop7 = "0x95dba0b6cb710ecf79f3e83b85e4872eafe7ba07": {
+            "balance": "000000000000000000"
+        },
+         address shop8 = "0x8468a4c20eabd7f56f67d2999595550b0fdb9748": {
+            "balance": "780000000000000000000"
+        },
+        address shop9 = "0x07bfe7a930b69f5db91be6414d4c5993931731f7": {
+            "balance": "1500000000000000000000"
+        }
