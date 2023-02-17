@@ -25,6 +25,7 @@ contract CryptoMonster is ERC20("CryptoMonster", "CMON"){
     uint startPrivateStage = Time_start + 5 minutes;
     uint startPublicStage = startPrivateStage + 10 minutes;
     uint public tokenPrice = 0.001 ether;
+    uint privTokenPrice = 0.0007 ether;
 
     
 
@@ -103,7 +104,6 @@ contract CryptoMonster is ERC20("CryptoMonster", "CMON"){
     //buisness logic:
     //Приватная продажа
     function privateSale(uint _amount) public payable privateStages userWL{
-        uint privTokenPrice = 0.0007 ether;
         require(msg.value/privTokenPrice == _amount, unicode"Вы внесли неправильное количество ether");
         require(_amount <= 100000, unicode"Превышен максимальный объем транзакции");
         require(privateTokens >= _amount, unicode"Не хватает токенов в приватной стадии");
@@ -220,6 +220,23 @@ contract CryptoMonster is ERC20("CryptoMonster", "CMON"){
     //Изменение цены токена
     function newTokenPrice(uint _newPrice) public publicProvider{
         tokenPrice = _newPrice;
+    }
+
+    //view
+    function viewReqWhiteList() public view returns(WhiteList[] memory){
+        return reqWhiteList;
+    }
+
+    function viewTokenPrice() public view returns(uint){
+        if(block.timestamp + Time_dif < startPrivateStage){
+            return 0;
+        }
+        else if(block.timestamp + Time_dif >= startPrivateStage && block.timestamp + Time_dif <= startPublicStage){
+            return privTokenPrice;
+        }
+        else if (block.timestamp + Time_dif >=  startPublicStage){
+            return tokenPrice;
+        }
     }
 
     //modifiers:
