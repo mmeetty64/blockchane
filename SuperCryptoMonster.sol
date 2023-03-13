@@ -23,6 +23,7 @@ contract MonsterToken is ERC20("MonsterToken", "CMON"){
     uint Time_dif = 0;
     uint privatePrice = 0.0007 ether;
     uint publicPrice = 0.001 ether;
+    uint activator = 0;
     enum Role{user, investor, privProv, publProv, Owner}
     enum typeToken{seedToken, privToken, publToken}
     WhiteList[] public reqWL;
@@ -134,14 +135,19 @@ contract MonsterToken is ERC20("MonsterToken", "CMON"){
 
     //передача обязанностей приватному провайдеру
     function activatePrivProv() public{
+        require(activator < 1, unicode"Уже активирован!");
         transfer(privProv, privateTokens);
+        activator = 1;
     }
 
     //передача обязанностей приватному провайдеру
     function activatePublProv() public{
+        require(activator < 2, unicode"Уже активирован!");
         transfer(publProv, publicTokens);
+        activator = 2;
     }
 
+    //Вывод цены токена
     function viewTokenPrice() public view returns(uint){
         if(block.timestamp + Time_dif >= startPrivateStage && block.timestamp + Time_dif < startPublicStage){
             return privatePrice;
@@ -150,6 +156,20 @@ contract MonsterToken is ERC20("MonsterToken", "CMON"){
             return publicPrice;
         }
     }
+
+    //Вывод системного времени
+    function systemTime() public view returns(uint){
+        return block.timestamp + Time_dif - Time_start;
+    }
+
+    //Вывод времени старта
+    function timeStart() public view returns(uint){
+        return Time_start;
+    }
+
+    function newBalance() public view returns(uint, uint, uint, uint){
+        return(msg.sender.balance, user[msg.sender].seedToken, user[msg.sender].privToken, user[msg.sender].publToken);
+    } 
     //user:
 
     //Подача заявки в вайтлист
