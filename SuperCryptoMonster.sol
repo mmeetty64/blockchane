@@ -22,7 +22,7 @@ contract MonsterToken is ERC20("MonsterToken", "CMON"){
     uint startPublicStage = startPrivateStage + 10 minutes;
     uint Time_dif = 0;
     uint privatePrice = 0.0007 ether;
-    uint publicPrice = 0.001 ether;
+    uint public publicPrice = 0.001 ether;
     uint activator = 0;
     enum Role{user, investor, privProv, publProv, Owner}
     enum typeToken{seedToken, privToken, publToken}
@@ -226,16 +226,16 @@ contract MonsterToken is ERC20("MonsterToken", "CMON"){
         return reqWL;
     }
 
-    //private токены пользователя
-    function privInfoUser(address _user) public view onlyPrivProv returns(uint){
-        return user[_user].privToken;
-    }
-    
     //Owner:
 
     //Просмотр информации об активах
-    function infoUser(address _user) public view onlyOwner returns(User memory){
+    function infoUser(address _user) public view administration returns(User memory){
         return user[_user];
+    }
+
+    //Изменение цены токена 
+    function changePrice(uint256 _newPrice) public onlyOwner {
+        publicPrice = _newPrice;
     }
 
     //public provider 
@@ -248,11 +248,6 @@ contract MonsterToken is ERC20("MonsterToken", "CMON"){
         publicTokens -= _amount*decim;
         user[msg.sender].balance = balanceOf(msg.sender);
         user[_partner].balance = balanceOf(_partner);
-    }
-
-    //public токены пользователя
-    function publInfoUser(address _user) public view onlyPublProv returns(uint){
-        return user[_user].publToken;
     }
 
     //modifiers:
@@ -281,6 +276,11 @@ contract MonsterToken is ERC20("MonsterToken", "CMON"){
 
     modifier onlyPublProv{
         require(user[msg.sender].role == Role.publProv, unicode"Вы не private провайдер!");
+        _;
+    }
+
+    modifier administration{
+        require(user[msg.sender].role > Role.investor, unicode"Ваш аккаунт не принадлежит администрации!");
         _;
     }
 }
